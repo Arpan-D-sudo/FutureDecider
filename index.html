@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutureDecide - Smart Decision Maker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="app-title">FutureDecide</h1>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+        </header>
+
+        <main class="app-content">
+            <section id="wheelMode" class="mode-section active">
+                <div class="controls-panel glass-panel">
+                    <div class="range-controls">
+                        <div class="input-group">
+                            <label for="minRange">Min</label>
+                            <input type="number" id="minRange" value="1" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="maxRange">Max</label>
+                            <input type="number" id="maxRange" value="20" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label for="quickRanges">Quick Ranges</label>
+                            <select id="quickRanges">
+                                <option value="">Custom</option>
+                                <option value="1,10">1-10</option>
+                                <option value="1,20" selected>1-20</option>
+                                <option value="1,50">1-50</option>
+                                <option value="1,100">1-100</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="wheel-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="noReplacementWheel">
+                            <span>No Replacement</span>
+                        </label>
+                    </div>
+
+                    <button id="spinBtn" class="btn-primary" aria-label="Spin the wheel">
+                        <span>SPIN</span>
+                    </button>
+                </div>
+
+                <div class="wheel-container">
+                    <svg id="wheelSvg" viewBox="0 0 400 400" aria-label="Number wheel">
+                        <defs>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <radialGradient id="wheelGradient">
+                                <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="var(--accent-secondary)" stop-opacity="0.1"/>
+                            </radialGradient>
+                        </defs>
+                        <g id="wheelGroup" transform="translate(200, 200)">
+                        </g>
+                        <polygon id="pointer" points="200,30 190,50 210,50" fill="var(--accent-primary)" filter="url(#glow)"/>
+                    </svg>
+                </div>
+
+                <div id="resultPanel" class="result-panel glass-panel hidden">
+                    <div class="result-content">
+                        <h3>Result</h3>
+                        <div id="resultNumber" class="result-number">-</div>
+                    </div>
+                </div>
+
+                <div id="usedNumbersPanel" class="used-panel glass-panel hidden">
+                    <div class="used-header">
+                        <h4>Used Numbers</h4>
+                        <div class="used-actions">
+                            <button id="undoWheelBtn" class="btn-small" aria-label="Undo last">Undo</button>
+                            <button id="resetWheelBtn" class="btn-small" aria-label="Reset wheel">Reset</button>
+                        </div>
+                    </div>
+                    <div id="usedNumbersList" class="used-list"></div>
+                </div>
+            </section>
+
+            <section id="taskMode" class="mode-section">
+                <div class="controls-panel glass-panel">
+                    <div class="task-input-group">
+                        <input type="text" id="taskInput" placeholder="Enter a task..." maxlength="120" aria-label="New task">
+                        <button id="addTaskBtn" class="btn-primary" aria-label="Add task">Add</button>
+                    </div>
+                    
+                    <div class="task-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="noReplacementTask">
+                            <span>No Replacement</span>
+                        </label>
+                    </div>
+
+                    <div class="task-actions">
+                        <button id="generateTaskBtn" class="btn-primary btn-large" aria-label="Generate random task">
+                            <span>GENERATE</span>
+                        </button>
+                    </div>
+
+                    <div class="import-export">
+                        <button id="exportTasksBtn" class="btn-small" aria-label="Export tasks">Export</button>
+                        <button id="importTasksBtn" class="btn-small" aria-label="Import tasks">Import</button>
+                    </div>
+                </div>
+
+                <div id="tasksGrid" class="tasks-grid"></div>
+
+                <div id="usedTasksPanel" class="used-panel glass-panel hidden">
+                    <div class="used-header">
+                        <h4>Used Tasks</h4>
+                        <div class="used-actions">
+                            <button id="undoTaskBtn" class="btn-small" aria-label="Undo last">Undo</button>
+                            <button id="resetTasksBtn" class="btn-small" aria-label="Reset all">Reset All</button>
+                        </div>
+                    </div>
+                    <div id="usedTasksList" class="used-list"></div>
+                </div>
+            </section>
+
+            <section id="punishmentsMode" class="mode-section">
+                <div class="controls-panel glass-panel punishment-panel">
+                    <div class="task-input-group">
+                        <input type="text" id="punishmentInput" placeholder="Enter a punishment..." maxlength="120" aria-label="New punishment">
+                        <button id="addPunishmentBtn" class="btn-primary btn-danger" aria-label="Add punishment">Add</button>
+                    </div>
+                    
+                    <div class="task-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="noReplacementPunishment">
+                            <span>No Replacement</span>
+                        </label>
+                    </div>
+
+                    <div class="task-actions">
+                        <button id="rollPunishmentBtn" class="btn-primary btn-large btn-danger" aria-label="Roll punishment">
+                            <span>⚠️ ROLL PUNISHMENT ⚠️</span>
+                        </button>
+                    </div>
+
+                    <div class="import-export">
+                        <button id="exportPunishmentsBtn" class="btn-small" aria-label="Export punishments">Export</button>
+                        <button id="importPunishmentsBtn" class="btn-small" aria-label="Import punishments">Import</button>
+                    </div>
+                </div>
+
+                <div id="punishmentsGrid" class="tasks-grid punishments-grid"></div>
+
+                <div id="usedPunishmentsPanel" class="used-panel glass-panel punishment-panel hidden">
+                    <div class="used-header">
+                        <h4>Completed Punishments</h4>
+                        <div class="used-actions">
+                            <button id="undoPunishmentBtn" class="btn-small" aria-label="Undo last">Undo</button>
+                            <button id="resetPunishmentsBtn" class="btn-small" aria-label="Reset all">Reset All</button>
+                        </div>
+                    </div>
+                    <div id="usedPunishmentsList" class="used-list"></div>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-mode="wheel" aria-label="Number Wheel">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="16" cy="16" r="12"/>
+                    <line x1="16" y1="4" x2="16" y2="16"/>
+                    <line x1="28" y1="16" x2="16" y2="16"/>
+                    <line x1="16" y1="28" x2="16" y2="16"/>
+                    <line x1="4" y1="16" x2="16" y2="16"/>
+                    <circle cx="16" cy="16" r="2" fill="currentColor"/>
+                </svg>
+                <span>Wheel</span>
+            </button>
+            <button class="nav-btn" data-mode="task" aria-label="Task Generator">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="6" y="6" width="20" height="20" rx="2"/>
+                    <line x1="6" y1="12" x2="26" y2="12"/>
+                    <line x1="12" y1="18" x2="20" y2="18"/>
+                    <line x1="12" y1="22" x2="18" y2="22"/>
+                </svg>
+                <span>Tasks</span>
+            </button>
+            <button class="nav-btn" data-mode="punishment" aria-label="Punishment Roll">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4 L28 28 L4 28 Z"/>
+                    <line x1="16" y1="12" x2="16" y2="18"/>
+                    <circle cx="16" cy="22" r="1" fill="currentColor"/>
+                </svg>
+                <span>Punish</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h3 id="modalTitle">Confirmation</h3>
+            <p id="modalMessage"></p>
+            <div class="modal-actions">
+                <button id="modalCancel" class="btn-small">Cancel</button>
+                <button id="modalConfirm" class="btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <h3>Import Tasks</h3>
+            <textarea id="importTextarea" placeholder='Paste JSON here: ["Task 1", "Task 2"]' rows="6"></textarea>
+            <div class="modal-actions">
+                <button id="importCancel" class="btn-small">Cancel</button>
+                <button id="importConfirm" class="btn-primary">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
